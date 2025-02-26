@@ -8,16 +8,29 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Facebook, Linkedin, Twitter, Github } from "lucide-react";
+import { Facebook, Linkedin, Twitter, Github, Link, Edit2, Save, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+
+type SocialNetwork = "facebook" | "linkedin" | "twitter" | "github";
 
 type Post = {
   id: string;
-  network: "facebook" | "linkedin" | "twitter" | "github";
+  network: SocialNetwork;
   content: string;
   date: string;
   engagement: number;
+};
+
+type Credential = {
+  id: string;
+  network: SocialNetwork;
+  username: string;
+  profileUrl: string;
+  apiKey?: string;
 };
 
 const mockPosts: Post[] = [
@@ -37,7 +50,24 @@ const mockPosts: Post[] = [
   },
 ];
 
-const NetworkIcon = ({ network }: { network: Post["network"] }) => {
+const mockCredentials: Credential[] = [
+  {
+    id: "1",
+    network: "twitter",
+    username: "@jeanhugues",
+    profileUrl: "https://twitter.com/jeanhugues",
+    apiKey: "secret-key-1",
+  },
+  {
+    id: "2",
+    network: "linkedin",
+    username: "jeanhugues",
+    profileUrl: "https://linkedin.com/in/jeanhugues",
+    apiKey: "secret-key-2",
+  },
+];
+
+const NetworkIcon = ({ network }: { network: SocialNetwork }) => {
   const icons = {
     facebook: Facebook,
     linkedin: Linkedin,
@@ -49,7 +79,40 @@ const NetworkIcon = ({ network }: { network: Post["network"] }) => {
 };
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<"feed" | "analytics">("feed");
+  const [activeTab, setActiveTab] = useState<"feed" | "credentials">("feed");
+  const [credentials, setCredentials] = useState<Credential[]>(mockCredentials);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const isOwner = true; // This should come from your auth system
+
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+  };
+
+  const handleSave = (id: string, updates: Partial<Credential>) => {
+    setCredentials(prev =>
+      prev.map(cred =>
+        cred.id === id ? { ...cred, ...updates } : cred
+      )
+    );
+    setEditingId(null);
+    toast({
+      title: "Credentials updated",
+      description: "Your changes have been saved successfully.",
+    });
+  };
+
+  const handleAdd = () => {
+    const newCred: Credential = {
+      id: `new-${Date.now()}`,
+      network: "twitter",
+      username: "",
+      profileUrl: "",
+      apiKey: "",
+    };
+    setCredentials(prev => [...prev, newCred]);
+    setEditingId(newCred.id);
+  };
 
   return (
     <MainLayout>
@@ -59,35 +122,134 @@ const Index = () => {
             <h1 className="text-3xl font-bold text-gray-900">Welcome, Jean Hugues</h1>
             <p className="text-gray-600 mt-1">Manage your social media presence</p>
           </div>
-          <Button 
-            size="lg"
-            className="slide-up bg-primary hover:bg-primary/90"
-          >
-            Create Post
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab(activeTab === "feed" ? "credentials" : "feed")}
+              className="slide-up"
+            >
+              {activeTab === "feed" ? "View Credentials" : "View Feed"}
+            </Button>
+            {activeTab === "credentials" && isOwner && (
+              <Button
+                onClick={handleAdd}
+                className="slide-up bg-primary hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Account
+              </Button>
+            )}
+          </div>
         </div>
 
-        <div className="grid gap-6">
-          {mockPosts.map((post) => (
-            <Card key={post.id} className="glass-card slide-up overflow-hidden">
-              <CardHeader className="flex flex-row items-center space-y-0 gap-4">
-                <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-                  <NetworkIcon network={post.network} />
-                </div>
-                <div>
-                  <CardTitle className="text-lg capitalize">{post.network}</CardTitle>
-                  <CardDescription>{new Date(post.date).toLocaleDateString()}</CardDescription>
-                </div>
-                <Badge variant="secondary" className="ml-auto">
-                  {post.engagement} engagements
-                </Badge>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">{post.content}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {activeTab === "feed" && (
+          <div className="grid gap-6">
+            {mockPosts.map((post) => (
+              <Card key={post.id} className="glass-card slide-up overflow-hidden">
+                <CardHeader className="flex flex-row items-center space-y-0 gap-4">
+                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <NetworkIcon network={post.network} />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg capitalize">{post.network}</CardTitle>
+                    <CardDescription>{new Date(post.date).toLocaleDateString()}</CardDescription>
+                  </div>
+                  <Badge variant="secondary" className="ml-auto">
+                    {post.engagement} engagements
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700">{post.content}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {activeTab === "credentials" && (
+          <div className="grid gap-6">
+            {credentials.map((cred) => (
+              <Card key={cred.id} className="glass-card slide-up overflow-hidden">
+                <CardHeader className="flex flex-row items-center space-y-0 gap-4">
+                  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <NetworkIcon network={cred.network} />
+                  </div>
+                  <div className="flex-grow">
+                    <CardTitle className="text-lg capitalize">{cred.network}</CardTitle>
+                    <CardDescription>{cred.username}</CardDescription>
+                  </div>
+                  {isOwner && editingId !== cred.id && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(cred.id)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {editingId === cred.id ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium">Username</label>
+                        <Input
+                          value={cred.username}
+                          onChange={(e) =>
+                            handleSave(cred.id, { username: e.target.value })
+                          }
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Profile URL</label>
+                        <Input
+                          value={cred.profileUrl}
+                          onChange={(e) =>
+                            handleSave(cred.id, { profileUrl: e.target.value })
+                          }
+                          className="mt-1"
+                        />
+                      </div>
+                      {isOwner && (
+                        <div>
+                          <label className="text-sm font-medium">API Key</label>
+                          <Input
+                            type="password"
+                            value={cred.apiKey}
+                            onChange={(e) =>
+                              handleSave(cred.id, { apiKey: e.target.value })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                      )}
+                      <Button
+                        onClick={() => handleSave(cred.id, {})}
+                        className="mt-4"
+                      >
+                        <Save className="h-4 w-4 mr-2" />
+                        Save
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <Link className="h-4 w-4 text-gray-500" />
+                      <a
+                        href={cred.profileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        View Profile
+                      </a>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </MainLayout>
   );
