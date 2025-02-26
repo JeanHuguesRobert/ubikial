@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Globe, Menu, X } from "lucide-react";
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [language, setLanguage] = useState<"en" | "fr">("en");
   const { toast } = useToast();
+  const { user, isSignedIn } = useUser();
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === "en" ? "fr" : "en");
@@ -35,9 +37,27 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 <Globe className="mr-2 h-4 w-4" />
                 {language === "en" ? "EN" : "FR"}
               </Button>
-              <Button variant="default" className="slide-up">
-                {language === "en" ? "New Post" : "Nouveau Post"}
-              </Button>
+              {isSignedIn ? (
+                <>
+                  <Button variant="default" className="slide-up">
+                    {language === "en" ? "New Post" : "Nouveau Post"}
+                  </Button>
+                  <UserButton afterSignOutUrl="/" />
+                </>
+              ) : (
+                <>
+                  <SignInButton mode="modal">
+                    <Button variant="ghost" className="slide-up">
+                      {language === "en" ? "Sign In" : "Connexion"}
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <Button variant="default" className="slide-up">
+                      {language === "en" ? "Sign Up" : "S'inscrire"}
+                    </Button>
+                  </SignUpButton>
+                </>
+              )}
             </div>
 
             <button
@@ -68,9 +88,29 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 <Globe className="mr-2 h-4 w-4" />
                 {language === "en" ? "English" : "Français"}
               </Button>
-              <Button variant="default" className="w-full">
-                {language === "en" ? "New Post" : "Nouveau Post"}
-              </Button>
+              {isSignedIn ? (
+                <>
+                  <Button variant="default" className="w-full">
+                    {language === "en" ? "New Post" : "Nouveau Post"}
+                  </Button>
+                  <div className="flex justify-center py-2">
+                    <UserButton afterSignOutUrl="/" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <SignInButton mode="modal">
+                    <Button variant="ghost" className="w-full">
+                      {language === "en" ? "Sign In" : "Connexion"}
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <Button variant="default" className="w-full">
+                      {language === "en" ? "Sign Up" : "S'inscrire"}
+                    </Button>
+                  </SignUpButton>
+                </>
+              )}
             </div>
           </div>
         </div>
