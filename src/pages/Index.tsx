@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,30 +8,13 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Facebook, Linkedin, Twitter, Github, Link, Edit2, Save, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-
-type SocialNetwork = "facebook" | "linkedin" | "twitter" | "github" | "generic";
-
-type Post = {
-  id: string;
-  network: SocialNetwork;
-  content: string;
-  date: string;
-  engagement: number;
-};
-
-type Credential = {
-  id: string;
-  network: SocialNetwork;
-  username: string;
-  profileUrl: string;
-  apiKey?: string;
-};
+import { SocialNetwork, Credential, Post, Persona, NETWORK_API_DOCS } from "@/types/social";
 
 const mockPosts: Post[] = [
   {
@@ -40,6 +23,7 @@ const mockPosts: Post[] = [
     content: "Excited to share my latest project on cross-platform social media management!",
     date: "2024-02-20",
     engagement: 42,
+    personaId: "1",
   },
   {
     id: "2",
@@ -47,6 +31,7 @@ const mockPosts: Post[] = [
     content: "New article about improving social media presence for tech professionals",
     date: "2024-02-19",
     engagement: 156,
+    personaId: "1",
   },
 ];
 
@@ -57,6 +42,7 @@ const mockCredentials: Credential[] = [
     username: "@jeanhugues",
     profileUrl: "https://twitter.com/jeanhugues",
     apiKey: "secret-key-1",
+    personaIds: ["1"],
   },
   {
     id: "2",
@@ -64,6 +50,7 @@ const mockCredentials: Credential[] = [
     username: "jeanhugues",
     profileUrl: "https://linkedin.com/in/jeanhugues",
     apiKey: "secret-key-2",
+    personaIds: ["1"],
   },
 ];
 
@@ -84,8 +71,27 @@ const Index = () => {
   const [credentials, setCredentials] = useState<Credential[]>(mockCredentials);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingCredential, setEditingCredential] = useState<Partial<Credential> | null>(null);
+  const [personas, setPersonas] = useState<Persona[]>([]);
   const { toast } = useToast();
   const isOwner = true; // This should come from your auth system
+
+  // Auto-discover personas from usernames
+  useEffect(() => {
+    const discoveredPersonas = new Map<string, Persona>();
+    
+    credentials.forEach(cred => {
+      const name = cred.username.replace(/^@/, '').split(/[._]/)[0];
+      if (!discoveredPersonas.has(name)) {
+        discoveredPersonas.set(name, {
+          id: name,
+          name: name,
+          description: `Persona discovered from ${cred.network}`,
+        });
+      }
+    });
+
+    setPersonas(Array.from(discoveredPersonas.values()));
+  }, [credentials]);
 
   const handleEdit = (id: string) => {
     const credential = credentials.find(c => c.id === id);
@@ -99,7 +105,7 @@ const Index = () => {
     if (editingCredential) {
       setCredentials(prev =>
         prev.map(cred =>
-          cred.id === id ? { ...cred, ...editingCredential } : cred
+          cred.id === id ? { ...cred, ...editingCredential } as Credential : cred
         )
       );
       setEditingId(null);
@@ -120,6 +126,21 @@ const Index = () => {
     }
   };
 
+  const handlePersonaToggle = (credentialId: string, personaId: string) => {
+    setCredentials(prev =>
+      prev.map(cred => {
+        if (cred.id === credentialId) {
+          const personaIds = cred.personaIds || [];
+          const updatedPersonaIds = personaIds.includes(personaId)
+            ? personaIds.filter(id => id !== personaId)
+            : [...personaIds, personaId];
+          return { ...cred, personaIds: updatedPersonaIds };
+        }
+        return cred;
+      })
+    );
+  };
+
   const handleAdd = () => {
     const newCred: Credential = {
       id: `new-${Date.now()}`,
@@ -127,6 +148,7 @@ const Index = () => {
       username: "",
       profileUrl: "",
       apiKey: "",
+      personaIds: [],
     };
     setCredentials(prev => [...prev, newCred]);
     setEditingCredential(newCred);
@@ -243,15 +265,54 @@ const Index = () => {
                         />
                       </div>
                       {isOwner && (
-                        <div>
-                          <label className="text-sm font-medium">API Key</label>
-                          <Input
-                            type="password"
-                            value={editingCredential.apiKey}
-                            onChange={(e) => handleInputChange("apiKey", e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
+                        <>
+                          <div>
+                            <label className="text-sm font-medium">API Key</label>
+                            <div className="mt-1 space-y-2">
+                              <Input
+                                type="password"
+                                value={editingCredential.apiKey}
+                                onChange={(e) => handleInputChange("apiKey", e.target.value)}
+                              />
+                              <a
+                                href={NETWORK_API_DOCS[editingCredential.network || "generic"]}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-primary hover:underline"
+                              >
+                                How to get an API key?
+                              </a>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Linked Personas</label>
+                            <div className="mt-2 space-y-2">
+                              {personas.map(persona => (
+                                <div key={persona.id} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`persona-${persona.id}-${cred.id}`}
+                                    checked={(editingCredential.personaIds || []).includes(persona.id)}
+                                    onCheckedChange={(checked) => {
+                                      const personaIds = editingCredential.personaIds || [];
+                                      setEditingCredential(prev => ({
+                                        ...prev,
+                                        personaIds: checked
+                                          ? [...personaIds, persona.id]
+                                          : personaIds.filter(id => id !== persona.id),
+                                      }));
+                                    }}
+                                  />
+                                  <label
+                                    htmlFor={`persona-${persona.id}-${cred.id}`}
+                                    className="text-sm text-gray-700"
+                                  >
+                                    {persona.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </>
                       )}
                       <Button
                         onClick={() => handleSave(cred.id)}
@@ -262,16 +323,40 @@ const Index = () => {
                       </Button>
                     </div>
                   ) : (
-                    <div className="flex items-center space-x-2">
-                      <Link className="h-4 w-4 text-gray-500" />
-                      <a
-                        href={cred.profileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        View Profile
-                      </a>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Link className="h-4 w-4 text-gray-500" />
+                        <a
+                          href={cred.profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          View Profile
+                        </a>
+                      </div>
+                      {isOwner && (
+                        <div>
+                          <label className="text-sm font-medium">Linked Personas</label>
+                          <div className="mt-2 space-y-2">
+                            {personas.map(persona => (
+                              <div key={persona.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`persona-${persona.id}-${cred.id}`}
+                                  checked={cred.personaIds.includes(persona.id)}
+                                  onCheckedChange={() => handlePersonaToggle(cred.id, persona.id)}
+                                />
+                                <label
+                                  htmlFor={`persona-${persona.id}-${cred.id}`}
+                                  className="text-sm text-gray-700"
+                                >
+                                  {persona.name}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>

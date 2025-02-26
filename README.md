@@ -1,69 +1,64 @@
-# Welcome to your Lovable project
 
-## Project info
+# Social Media Manager
 
-**URL**: https://lovable.dev/projects/ff648c5d-a525-4888-9618-8a0b7f5e86c1
+A powerful tool for managing multiple social media personas and cross-posting content with AI-assisted improvements.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- 🔐 Secure credential management for multiple social networks
+- 👤 Multiple persona support with automatic discovery
+- 🤖 AI-assisted content adaptation for each platform
+- 📊 Analytics and engagement tracking
+- 📝 Cross-posting with platform-specific optimizations
+- 🔄 Real-time synchronization with social networks
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ff648c5d-a525-4888-9618-8a0b7f5e86c1) and start prompting.
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up Supabase:
+   - Create a new Supabase project
+   - Add your Supabase URL and anon key to environment variables
+4. Start the development server: `npm run dev`
 
-Changes made via Lovable will be committed automatically to this repo.
+## Configuration
 
-**Use your preferred IDE**
+### Social Network API Keys
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+To enable full functionality, you'll need API keys for each social network:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Twitter: [Get API Key](https://developer.twitter.com/en/docs/twitter-api)
+- LinkedIn: [Get API Key](https://developer.linkedin.com/)
+- Facebook: [Get API Key](https://developers.facebook.com/docs/)
+- GitHub: [Get API Key](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 
-Follow these steps:
+## Usage
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Add your social media credentials
+2. Create or select a persona
+3. Create content for one platform
+4. Use AI to adapt content for other platforms
+5. Review and schedule posts
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Development
 
-# Step 3: Install the necessary dependencies.
-npm i
+This project uses:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
+- React with TypeScript
 - Tailwind CSS
+- shadcn/ui components
+- Supabase for backend
+- OpenAI for content adaptation
 
-## How can I deploy this project?
+## Contributing
 
-Simply open [Lovable](https://lovable.dev/projects/ff648c5d-a525-4888-9618-8a0b7f5e86c1) and click on Share -> Publish.
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
-## I want to use a custom domain - is that possible?
+## License
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+MIT
+
