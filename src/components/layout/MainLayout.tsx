@@ -46,12 +46,12 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 </>
               ) : (
                 <>
-                  <SignInButton mode="redirect">
+                  <SignInButton>
                     <Button variant="ghost" className="slide-up">
                       {language === "en" ? "Sign In" : "Connexion"}
                     </Button>
                   </SignInButton>
-                  <SignUpButton mode="redirect">
+                  <SignUpButton>
                     <Button variant="default" className="slide-up">
                       {language === "en" ? "Sign Up" : "S'inscrire"}
                     </Button>
@@ -99,12 +99,12 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 </>
               ) : (
                 <>
-                  <SignInButton mode="redirect">
+                  <SignInButton>
                     <Button variant="ghost" className="w-full">
                       {language === "en" ? "Sign In" : "Connexion"}
                     </Button>
                   </SignInButton>
-                  <SignUpButton mode="redirect">
+                  <SignUpButton>
                     <Button variant="default" className="w-full">
                       {language === "en" ? "Sign Up" : "S'inscrire"}
                     </Button>
