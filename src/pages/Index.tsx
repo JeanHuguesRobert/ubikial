@@ -1,3 +1,4 @@
+
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -202,12 +203,12 @@ const Index = () => {
               Sign in to get started.
             </p>
             <div className="flex justify-center gap-4">
-              <SignInButton mode="modal">
+              <SignInButton mode="redirect">
                 <Button variant="default" size="lg">
                   Sign In
                 </Button>
               </SignInButton>
-              <SignUpButton mode="modal">
+              <SignUpButton mode="redirect">
                 <Button variant="outline" size="lg">
                   Create Account
                 </Button>
