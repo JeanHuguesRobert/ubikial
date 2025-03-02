@@ -8,11 +8,13 @@ import { useUser } from "@clerk/clerk-react";
 import { CreatePostForm } from "@/components/post/CreatePostForm";
 import { PostsList } from "@/components/post/PostsList";
 import { CredentialsList } from "@/components/credential/CredentialsList";
+import { useToast } from "@/components/ui/use-toast";
 
 export const Dashboard = () => {
   const { user } = useUser();
   const [credentials, setCredentials] = useState<Credential[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Mock data for demonstration
@@ -61,6 +63,18 @@ export const Dashboard = () => {
     setPosts(prevPosts => [newPost, ...prevPosts]);
   };
 
+  const handleCredentialUpdate = (updatedCredential: Credential) => {
+    setCredentials(prevCredentials => 
+      prevCredentials.map(cred => 
+        cred.id === updatedCredential.id ? updatedCredential : cred
+      )
+    );
+    toast({
+      title: "Credential Updated",
+      description: `${updatedCredential.network} credential has been updated.`
+    });
+  };
+
   return (
     <>
       <div className="flex justify-between items-center">
@@ -83,7 +97,10 @@ export const Dashboard = () => {
           <PostsList posts={posts} />
         </TabsContent>
         <TabsContent value="credentials">
-          <CredentialsList credentials={credentials} />
+          <CredentialsList 
+            credentials={credentials} 
+            onCredentialUpdate={handleCredentialUpdate} 
+          />
         </TabsContent>
       </Tabs>
     </>
