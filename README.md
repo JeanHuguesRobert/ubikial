@@ -12,6 +12,10 @@ A powerful tool for managing multiple social media personas and cross-posting co
 - 📝 Cross-posting with platform-specific optimizations
 - 🔄 Real-time synchronization with social networks
 
+## WIP
+
+This is a Work In Progress prototype. Vibe coding. See it [live](https://wghablvis3pg4.srcbook.app/).
+
 ## Getting Started
 
 1. Clone the repository
